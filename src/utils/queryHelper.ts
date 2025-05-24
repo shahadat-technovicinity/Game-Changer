@@ -1,0 +1,55 @@
+export const queryHelper = (query: any) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    sort,
+    genres,
+    moods,
+    languageId,
+    songFormatId,
+    status,
+    role,
+    transactionType,
+  } = query;
+
+  const pageNum = typeof page === "string" ? parseInt(page, 10) : page;
+  const limitNum = typeof limit === "string" ? parseInt(limit, 10) : limit;
+  const skip = (pageNum - 1) * limitNum;
+
+  const orConditions: Record<string, any>[] = [];
+
+  if (search) {
+    const regex = { $regex: search, $options: "i" };
+    orConditions.push(
+      { title: regex },
+      { name: regex },
+      { status_name: regex },
+      { status: regex },
+      { label: regex },
+      { song_format: regex },
+      { mood_name: regex },
+      { language_name: regex },
+      { genre_name: regex }
+    );
+  }
+
+  if (genres) orConditions.push({ genres: { $in: [].concat(genres) } });
+  if (moods) orConditions.push({ moods: { $in: [].concat(moods) } });
+  if (languageId) orConditions.push({ languageId: { $in: [].concat(languageId) } });
+  if (songFormatId) orConditions.push({ songFormatId: { $in: [].concat(songFormatId) } });
+  if (status) orConditions.push({ status: { $in: [].concat(status) } });
+  if (role) orConditions.push({ role: { $in: [].concat(role) } });
+
+  const finalQuery = orConditions.length > 0 ? { $or: orConditions } : {};
+  const sortQuery: { [key: string]: 1 | -1 } = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+
+  return {
+    skip,
+    limit: limitNum,
+    finalQuery,
+    sortQuery,
+    transactionType,
+    page: pageNum,
+  };
+};
