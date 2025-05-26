@@ -1,4 +1,6 @@
-import crypto from 'crypto';
+import path from 'path';
+import fs from 'fs';
+import ejs from 'ejs';
 import { Request, Response } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../users/model';
@@ -9,6 +11,7 @@ import {
   generateRefreshToken,
   verifyToken,
 } from '../utils/token';
+import { sendEmail } from '../utils/emailService';
 
 const register = catchAsync(async (req: Request, res: Response) => {
   const { first_name, last_name, email, password } = req.body;
@@ -34,6 +37,20 @@ const register = catchAsync(async (req: Request, res: Response) => {
   });
 
   // TODO: Send Email
+  let emailTemplatePath, subject;
+  emailTemplatePath = path.resolve(
+    __dirname,
+    "..", // from auths to src
+    "email_templates",
+    "welcome_email.ejs"
+  );
+  subject = "Welcome to Game Changer!";
+
+  const emailTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
+  const mailContent = ejs.render(emailTemplate, {
+    name: `${user.first_name} ${user.last_name}`,
+  });
+  sendEmail(user.email, subject, mailContent);
 
 });
 
@@ -57,9 +74,9 @@ const login = catchAsync(async (req: Request, res: Response) => {
   await user.save();
 
   const options = {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
+    // sameSite: 'strict' as const,
     maxAge: Number(process.env.COOKIES_EXPIRY_REMEMBER!),
   };
 
@@ -143,6 +160,20 @@ const forgetPassword = catchAsync(async (req: Request, res: Response) => {
   });
 
   // TODO: Send Email
+  let emailTemplatePath, subject = "Ali";
+  emailTemplatePath = path.resolve(
+    __dirname,
+    "..", // from auths to src
+    "email_templates",
+    "otp_email.ejs"
+  );
+  subject = "Game Changer - Password Reset OTP";
+  const emailTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
+  const mailContent = ejs.render(emailTemplate, {
+    name: `${user.first_name} ${user.last_name}`,
+    code: otp,
+  });
+  sendEmail(user.email, subject, mailContent);
 
 });
 

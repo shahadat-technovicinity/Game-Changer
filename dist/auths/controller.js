@@ -1,10 +1,17 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Controller = void 0;
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const ejs_1 = __importDefault(require("ejs"));
 const model_1 = require("../users/model");
 const appError_1 = require("../utils/appError");
 const catchAsync_1 = require("../utils/catchAsync");
 const token_1 = require("../utils/token");
+const emailService_1 = require("../utils/emailService");
 const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { first_name, last_name, email, password } = req.body;
     if (!first_name || !email || !password || !last_name) {
@@ -26,6 +33,15 @@ const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
         data: user,
     });
     // TODO: Send Email
+    let emailTemplatePath, subject;
+    emailTemplatePath = path_1.default.resolve(__dirname, "..", // from auths to src
+    "email_templates", "welcome_email.ejs");
+    subject = "Welcome to Game Changer!";
+    const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
+    const mailContent = ejs_1.default.render(emailTemplate, {
+        name: `${user.first_name} ${user.last_name}`,
+    });
+    (0, emailService_1.sendEmail)(user.email, subject, mailContent);
 });
 const login = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { email, password } = req.body;
@@ -42,9 +58,9 @@ const login = (0, catchAsync_1.catchAsync)(async (req, res) => {
     user.refresh_token = refreshToken;
     await user.save();
     const options = {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        // sameSite: 'strict' as const,
         maxAge: Number(process.env.COOKIES_EXPIRY_REMEMBER),
     };
     res
@@ -110,6 +126,16 @@ const forgetPassword = (0, catchAsync_1.catchAsync)(async (req, res) => {
         message: 'OTP sent to your email',
     });
     // TODO: Send Email
+    let emailTemplatePath, subject = "Ali";
+    emailTemplatePath = path_1.default.resolve(__dirname, "..", // from auths to src
+    "email_templates", "otp_email.ejs");
+    subject = "Game Changer - Password Reset OTP";
+    const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
+    const mailContent = ejs_1.default.render(emailTemplate, {
+        name: `${user.first_name} ${user.last_name}`,
+        code: otp,
+    });
+    (0, emailService_1.sendEmail)(user.email, subject, mailContent);
 });
 const otpVerify = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { otp, email } = req.body;
