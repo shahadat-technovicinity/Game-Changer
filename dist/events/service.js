@@ -102,4 +102,25 @@ const getAll = async (query) => {
     };
     return { items, paginationData };
 };
-exports.Service = { create, getCreatedByTeam, getCreatedByOpponent, getTotalEventsOfTeam, getById, update, remove, getAll };
+const getAllByAdmin = async (admin_id, query) => {
+    const { skip, limit, finalQuery, sortQuery, page } = (0, queryHelper_1.queryHelper)(query);
+    console.log("Admin_id in service: ", admin_id);
+    const filter = { admin_id, ...finalQuery };
+    const [items, totalItems] = await Promise.all([
+        model_1.Event.find(filter)
+            .populate(['admin_id', 'team_id', 'opponent_team_id'])
+            .sort(sortQuery)
+            .skip(skip)
+            .limit(limit),
+        model_1.Event.countDocuments(filter),
+    ]);
+    const totalPages = Math.ceil(totalItems / limit);
+    const paginationData = {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        limit,
+    };
+    return { items, paginationData };
+};
+exports.Service = { create, getCreatedByTeam, getCreatedByOpponent, getTotalEventsOfTeam, getById, update, remove, getAll, getAllByAdmin };

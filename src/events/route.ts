@@ -8,6 +8,7 @@ const router = Router();
 router.route('/')
     .post(protect,restrictTo("Admin"),upload.single("image"),Controller.create)
     .get(Controller.getAll);
+router.get('/admin', protect,restrictTo("Admin"),Controller.getAllByAdmin);
 router.route('/:id')
     .get(Controller.getById)
     .post(protect,restrictTo("Admin"),Controller.update)

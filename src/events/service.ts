@@ -108,4 +108,26 @@ const getAll = async (query: any): Promise<{ items: IEvent[]; paginationData: an
   return { items, paginationData };
 };
 
-export const Service = {create, getCreatedByTeam,getCreatedByOpponent,getTotalEventsOfTeam, getById, update,remove,getAll};
+const getAllByAdmin = async (admin_id: string,query: any): Promise<{ items: IEvent[]; paginationData: any }> => {
+  const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
+  console.log("Admin_id in service: ", admin_id);
+  const filter = {admin_id,...finalQuery};
+  const [items, totalItems] = await Promise.all([
+    Event.find(filter)
+      .populate(['admin_id', 'team_id', 'opponent_team_id'])
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(limit),
+    Event.countDocuments(filter),
+  ]);
+  const totalPages = Math.ceil(totalItems / limit);
+  const paginationData = {
+    totalItems,
+    totalPages,
+    currentPage: page,
+    limit,
+  };
+  return { items, paginationData };
+};
+
+export const Service = {create, getCreatedByTeam,getCreatedByOpponent,getTotalEventsOfTeam, getById, update,remove,getAll,getAllByAdmin};
