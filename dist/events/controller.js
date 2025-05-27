@@ -113,4 +113,10 @@ const getAll = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { items, paginationData } = await service_1.Service.getAll(req.query);
     res.status(200).json({ success: true, message: "Retrived all events successfully", data: items, pagination: paginationData });
 });
-exports.Controller = { create, getCreatedByTeam, getCreatedByOpponent, getTotalEventsOfTeam, getById, update, remove, getAll };
+const getAllByAdmin = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const admin_id = req.user._id;
+    console.log("Admin_id : ", admin_id);
+    const { items, paginationData } = await service_1.Service.getAllByAdmin(admin_id, req.query);
+    res.status(200).json({ success: true, message: "Retrived all events successfully by Admin", data: items, pagination: paginationData });
+});
+exports.Controller = { create, getCreatedByTeam, getCreatedByOpponent, getTotalEventsOfTeam, getById, update, remove, getAll, getAllByAdmin };

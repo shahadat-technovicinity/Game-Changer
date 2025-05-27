@@ -10,6 +10,7 @@ exports.eventRouter = router;
 router.route('/')
     .post(auth_1.protect, (0, auth_1.restrictTo)("Admin"), uploadFile_1.upload.single("image"), controller_1.Controller.create)
     .get(controller_1.Controller.getAll);
+router.get('/admin', auth_1.protect, (0, auth_1.restrictTo)("Admin"), controller_1.Controller.getAllByAdmin);
 router.route('/:id')
     .get(controller_1.Controller.getById)
     .post(auth_1.protect, (0, auth_1.restrictTo)("Admin"), controller_1.Controller.update)

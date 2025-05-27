@@ -41,7 +41,7 @@ const teamSchema = new mongoose_1.Schema({
     team_type: { type: mongoose_1.Schema.Types.ObjectId, ref: 'TeamType', required: true },
     age_type: { type: mongoose_1.Schema.Types.ObjectId, ref: 'AgeType', required: true },
     team_place: { type: String, required: true },
-    image: { type: String, required: false },
+    image: { type: String, default: null, required: false },
     team_name: { type: String, required: true },
     season_type: { type: mongoose_1.Schema.Types.ObjectId, ref: 'SeasonType', required: true },
     players_id: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'User' }],
