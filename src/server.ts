@@ -13,6 +13,7 @@ const server = http.createServer(app);
 // });
 
 const allowedOrigins = [
+  "*",
   process.env.CLIENT_URL,                 
   process.env.CLIENT_LOCALHOST_URL,                 
   "http://localhost:3000",    
