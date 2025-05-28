@@ -27,7 +27,9 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json({ limit: "10kb" }));
 // CORS - allow frontend access
 app.use((0, cors_1.default)({
-    origin: process.env.CLIENT_URL || '*',
+    origin: [process.env.CLIENT_URL,
+        process.env.CLIENT_LOCALHOST_URL,
+        '*'],
     credentials: true
 }));
 // Logging

@@ -11,20 +11,8 @@ const model_1 = require("./teams/model");
 const model_2 = require("./users/model");
 const model_3 = require("./messages/model");
 const server = http_1.default.createServer(app_1.app);
-// const io = new Server(server, {
-//   cors: { origin:process.env.CLIENT_URL || "*", methods: ["GET", "POST"] },
-// });
-const allowedOrigins = [
-    "*",
-    process.env.CLIENT_URL,
-    process.env.CLIENT_LOCALHOST_URL,
-    "http://localhost:3000",
-].filter((origin) => typeof origin === "string");
 const io = new socket_io_1.Server(server, {
-    cors: {
-        origin: allowedOrigins || "*",
-        methods: ["GET", "POST", "DELETE", "PUT"],
-    },
+    cors: { origin: "*", methods: ["GET", "POST"] },
 });
 io.on("connection", (socket) => {
     // console.log("✅ New client connected:", socket.id);
