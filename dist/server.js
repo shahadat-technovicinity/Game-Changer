@@ -16,6 +16,7 @@ const server = http_1.default.createServer(app_1.app);
 // });
 const allowedOrigins = [
     process.env.CLIENT_URL,
+    process.env.CLIENT_LOCALHOST_URL,
     "http://localhost:3000",
 ].filter((origin) => typeof origin === "string");
 const io = new socket_io_1.Server(server, {
