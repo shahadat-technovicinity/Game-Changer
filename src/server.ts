@@ -8,9 +8,22 @@ import { User } from "./users/model";
 import { Message } from "./messages/model";
 
 const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: { origin:process.env.CLIENT_URL || "*", methods: ["GET", "POST"] },
+// });
+
+const allowedOrigins = [
+  process.env.CLIENT_URL,                 
+  "http://localhost:3000",    
+].filter((origin): origin is string => typeof origin === "string");
+
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: {
+    origin: allowedOrigins || "*",
+    methods: ["GET", "POST", "DELETE", "PUT"],
+  },
 });
+
 
 io.on("connection", (socket) => {
   // console.log("✅ New client connected:", socket.id);
