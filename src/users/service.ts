@@ -6,7 +6,7 @@ const getAll = async (query: any): Promise<{ items: IUser[]; paginationData: any
   const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
 
   const [items, totalItems] = await Promise.all([
-    User.find(finalQuery).sort(sortQuery).skip(skip).limit(limit),
+    User.find(finalQuery).sort(sortQuery).skip(skip).limit(limit).select('-access_token -refresh_token -forget_password_code_time -forget_password_code'),
     User.countDocuments(finalQuery),
   ]);
   const totalPages = Math.ceil(totalItems / limit);

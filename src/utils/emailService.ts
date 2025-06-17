@@ -27,7 +27,6 @@ const sendEmail = async (
       subject,
       html: mailContent,
     };
-
   const info = await transporter.sendMail(mailOptions);
   console.log("✅ Email Subject:", subject);
 };

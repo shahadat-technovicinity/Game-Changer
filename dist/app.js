@@ -29,6 +29,7 @@ app.use(express_1.default.json({ limit: "10kb" }));
 app.use((0, cors_1.default)({
     origin: [process.env.CLIENT_URL,
         process.env.CLIENT_LOCALHOST_URL,
+        process.env.ADMIN_PANEL_URL,
         '*'],
     credentials: true
 }));

@@ -6,7 +6,7 @@ const queryHelper_1 = require("../utils/queryHelper");
 const getAll = async (query) => {
     const { skip, limit, finalQuery, sortQuery, page } = (0, queryHelper_1.queryHelper)(query);
     const [items, totalItems] = await Promise.all([
-        model_1.User.find(finalQuery).sort(sortQuery).skip(skip).limit(limit),
+        model_1.User.find(finalQuery).sort(sortQuery).skip(skip).limit(limit).select('-access_token -refresh_token -forget_password_code_time -forget_password_code'),
         model_1.User.countDocuments(finalQuery),
     ]);
     const totalPages = Math.ceil(totalItems / limit);
