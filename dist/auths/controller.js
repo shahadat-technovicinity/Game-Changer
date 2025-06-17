@@ -41,6 +41,7 @@ const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const mailContent = ejs_1.default.render(emailTemplate, {
         name: `${user.first_name} ${user.last_name}`,
     });
+    console.log("SUbject: ", subject);
     (0, emailService_1.sendEmail)(user.email, subject, mailContent);
 });
 const login = (0, catchAsync_1.catchAsync)(async (req, res) => {

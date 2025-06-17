@@ -28,6 +28,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(cors({
   origin:[ process.env.CLIENT_URL as string,                 
   process.env.CLIENT_LOCALHOST_URL as string,                   
+  process.env.ADMIN_PANEL_URL as string,                   
     '*'],
   credentials: true
 }));
