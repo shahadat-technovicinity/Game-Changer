@@ -22,6 +22,7 @@ export interface IUser extends Document {
   forget_password_code?: string;
   forget_password_code_time?: Date;
   team_id: mongoose.Types.ObjectId;
+  is_deleted?: boolean;
   admin_teams: mongoose.Types.ObjectId[];
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -42,6 +43,7 @@ const userSchema = new Schema<IUser>(
     device_token: { type: String },
     access_token: { type: String },
     refresh_token: { type: String },
+    is_deleted: { type: Boolean, default: false },
     forget_password_code: { type: String },
     forget_password_code_time: { type: Date },
     team_id: { type: Schema.Types.ObjectId, ref: 'Team' },

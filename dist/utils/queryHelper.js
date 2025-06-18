@@ -9,7 +9,7 @@ const queryHelper = (query) => {
     const orConditions = [];
     if (search) {
         const regex = { $regex: search, $options: "i" };
-        orConditions.push({ title: regex }, { name: regex }, { status_name: regex }, { status: regex }, { label: regex }, { song_format: regex }, { mood_name: regex }, { language_name: regex }, { genre_name: regex });
+        orConditions.push({ title: regex }, { first_name: regex }, { last_name: regex }, { status: regex }, { label: regex }, { song_format: regex }, { mood_name: regex }, { language_name: regex }, { genre_name: regex });
     }
     if (genres)
         orConditions.push({ genres: { $in: [].concat(genres) } });

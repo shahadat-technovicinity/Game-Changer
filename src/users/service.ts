@@ -20,7 +20,7 @@ const getAll = async (query: any): Promise<{ items: IUser[]; paginationData: any
 };
 
 const getById = async (id: string): Promise<IUser | null> => {
-  return await User.findById(id).lean();
+  return await User.findById(id);
 };
 
 

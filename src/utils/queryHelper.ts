@@ -23,8 +23,8 @@ export const queryHelper = (query: any) => {
     const regex = { $regex: search, $options: "i" };
     orConditions.push(
       { title: regex },
-      { name: regex },
-      { status_name: regex },
+      { first_name: regex },
+      { last_name: regex },
       { status: regex },
       { label: regex },
       { song_format: regex },
