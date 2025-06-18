@@ -17,3 +17,8 @@ router
 router
     .route("/all")
     .get(controller_1.Controller.getAll);
+router
+    .route("/:id")
+    .get(controller_1.Controller.getUserById)
+    .patch(controller_1.Controller.blockUserById)
+    .post(uploadFile_1.upload.single("image"), controller_1.Controller.updateUserById);

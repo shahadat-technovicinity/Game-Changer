@@ -12,4 +12,9 @@ router
 router
     .route("/all")
     .get(Controller.getAll);
+router
+    .route("/:id")
+    .get(Controller.getUserById)
+    .patch(Controller.blockUserById)
+    .post(upload.single("image"),Controller.updateUserById)
 export {router as userRouter};

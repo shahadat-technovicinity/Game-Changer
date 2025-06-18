@@ -19,7 +19,7 @@ const getAll = async (query) => {
     return { items, paginationData };
 };
 const getById = async (id) => {
-    return await model_1.User.findById(id).lean();
+    return await model_1.User.findById(id);
 };
 const update = async (id, data) => {
     return await model_1.User.findByIdAndUpdate(id, data, {
