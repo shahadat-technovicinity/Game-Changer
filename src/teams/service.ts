@@ -158,7 +158,7 @@ const addCoach = async (teamId: string, data: Partial<IUser>) => {
   // Update team with player if not already added
   const updatedTeam = await Team.findByIdAndUpdate(
     teamId,
-    { $addToSet: { coachs_id: player._id } }, // Avoid duplicates
+    { $addToSet: { coaches_id: player._id } }, // Avoid duplicates
     { new: true }
   )
     .populate([
@@ -168,7 +168,7 @@ const addCoach = async (teamId: string, data: Partial<IUser>) => {
       'age_type',
       'season_type'
     ])
-    .populate('coachs_id', 'first_name last_name email image role team_id');
+    .populate('coaches_id', 'first_name last_name email image role team_id');
 
   // Send Invitation Email
   const subject = `You're Invited to Join ${updatedTeam?.team_name} on Game Changer!`;
@@ -255,7 +255,7 @@ const getPlayers = async (teamId: string,query: any): Promise<{ players: any[]; 
     }
   };
 };
-const getCoachs = async (teamId: string,query: any): Promise<{ coachs: any[]; pagination: any }> => {
+const getCoachs = async (teamId: string,query: any): Promise<{ coaches: any[]; pagination: any }> => {
   const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
 
   const filter = {_id:teamId, ...finalQuery};
@@ -263,14 +263,14 @@ const getCoachs = async (teamId: string,query: any): Promise<{ coachs: any[]; pa
   const team = teams[0];
   if (!team) throw new AppError("Team not found", 404);
 
-  const totalPlayers = team?.coachs_id?.length;
-  // Step 2: Paginate coachs manually using coachs_id
-  const paginatedPlayerIds = team.coachs_id?.slice(skip, skip + limit);
+  const totalPlayers = team?.coaches_id?.length;
+  // Step 2: Paginate coaches manually using coaches_id
+  const paginatedPlayerIds = team.coaches_id?.slice(skip, skip + limit);
   // Step 3: Fetch user details
-  const coachs = await User.find({ _id: { $in: paginatedPlayerIds } });
+  const coaches = await User.find({ _id: { $in: paginatedPlayerIds } });
 
   return {
-    coachs,
+    coaches,
     pagination: {
       totalItems: totalPlayers,
       totalPages: Math.ceil(totalPlayers / limit),

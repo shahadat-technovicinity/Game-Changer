@@ -134,7 +134,7 @@ const addCoach = async (teamId, data) => {
         });
     }
     // Update team with player if not already added
-    const updatedTeam = await model_1.Team.findByIdAndUpdate(teamId, { $addToSet: { coachs_id: player._id } }, // Avoid duplicates
+    const updatedTeam = await model_1.Team.findByIdAndUpdate(teamId, { $addToSet: { coaches_id: player._id } }, // Avoid duplicates
     { new: true })
         .populate([
         { path: 'admin_id', select: 'first_name last_name email image' },
@@ -143,7 +143,7 @@ const addCoach = async (teamId, data) => {
         'age_type',
         'season_type'
     ])
-        .populate('coachs_id', 'first_name last_name email image role team_id');
+        .populate('coaches_id', 'first_name last_name email image role team_id');
     // Send Invitation Email
     const subject = `You're Invited to Join ${updatedTeam?.team_name} on Game Changer!`;
     let mailContent;
@@ -211,13 +211,13 @@ const getCoachs = async (teamId, query) => {
     const team = teams[0];
     if (!team)
         throw new appError_1.AppError("Team not found", 404);
-    const totalPlayers = team?.coachs_id?.length;
-    // Step 2: Paginate coachs manually using coachs_id
-    const paginatedPlayerIds = team.coachs_id?.slice(skip, skip + limit);
+    const totalPlayers = team?.coaches_id?.length;
+    // Step 2: Paginate coaches manually using coaches_id
+    const paginatedPlayerIds = team.coaches_id?.slice(skip, skip + limit);
     // Step 3: Fetch user details
-    const coachs = await model_2.User.find({ _id: { $in: paginatedPlayerIds } });
+    const coaches = await model_2.User.find({ _id: { $in: paginatedPlayerIds } });
     return {
-        coachs,
+        coaches,
         pagination: {
             totalItems: totalPlayers,
             totalPages: Math.ceil(totalPlayers / limit),
