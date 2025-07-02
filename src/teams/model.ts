@@ -11,7 +11,7 @@ export interface ITeam extends Document {
   image: string;
   season_type: mongoose.Types.ObjectId;
   players_id: mongoose.Types.ObjectId[];
-  coachs_id: mongoose.Types.ObjectId[];
+  coaches_id: mongoose.Types.ObjectId[];
 }
 
 const teamSchema = new Schema<ITeam>(
@@ -26,7 +26,7 @@ const teamSchema = new Schema<ITeam>(
     team_code: { type: String, required: true, unique: true },
     season_type: { type: Schema.Types.ObjectId, ref: 'SeasonType', required: true },
     players_id: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    coachs_id: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    coaches_id: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

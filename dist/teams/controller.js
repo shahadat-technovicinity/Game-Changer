@@ -83,8 +83,8 @@ const getPlayers = (0, catchAsync_1.catchAsync)(async (req, res) => {
 });
 const getCoachs = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const { coachs, pagination } = await service_1.Service.getCoachs(id, req.query);
-    res.status(200).json({ success: true, message: "Retrived all players of team successfully", data: coachs, pagination });
+    const { coaches, pagination } = await service_1.Service.getCoachs(id, req.query);
+    res.status(200).json({ success: true, message: "Retrived all players of team successfully", data: coaches, pagination });
 });
 const getById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const team = await service_1.Service.getById(req.params.id);

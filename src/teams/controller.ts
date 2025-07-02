@@ -90,8 +90,8 @@ const getPlayers = catchAsync(async (req: Request, res: Response) => {
 });
 const getCoachs = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { coachs, pagination } = await Service.getCoachs(id, req.query);
-  res.status(200).json({ success: true, message: "Retrived all players of team successfully", data: coachs, pagination });
+  const { coaches, pagination } = await Service.getCoachs(id, req.query);
+  res.status(200).json({ success: true, message: "Retrived all players of team successfully", data: coaches, pagination });
 });
 
 const getById = catchAsync(async (req: Request, res: Response) => {
