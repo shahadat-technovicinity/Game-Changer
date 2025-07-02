@@ -12,21 +12,35 @@ const appError_1 = require("../utils/appError");
 const catchAsync_1 = require("../utils/catchAsync");
 const token_1 = require("../utils/token");
 const emailService_1 = require("../utils/emailService");
+const model_2 = require("../teams/model");
 const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
-    if (!first_name || !email || !password || !last_name) {
+    const { first_name, last_name, email, password, team_code, role } = req.body;
+    if (!first_name || !email || !password || !last_name || role) {
         throw new appError_1.AppError('Required fields are missing', 400);
     }
     const existingUser = await model_1.User.findOne({ email });
     if (existingUser) {
         throw new appError_1.AppError('Email already in use', 400);
     }
+    let existingTeam;
+    if (team_code) {
+        existingTeam = await model_2.Team.findOne({ team_code });
+        if (!existingTeam) {
+            throw new appError_1.AppError('Team not found', 400);
+        }
+    }
     const user = await model_1.User.create({
         first_name,
         last_name,
         email,
         password,
+        role
     });
+    if (existingTeam && user) {
+        // Cast _id to Types.ObjectId to avoid type error
+        user.team_id = existingTeam._id;
+        await user.save(); // Ensure save is awaited
+    }
     res.status(201).json({
         success: true,
         message: 'Registration successfully completed',

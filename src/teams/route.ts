@@ -12,8 +12,11 @@ router.route('/:id')
         .get(Controller.getById)
         .delete(protect,restrictTo("Admin"),Controller.remove);
 router.route('/:id/player')
-        .post(protect,restrictTo("Admin"),Controller.addPlayer)
+        .post(protect,restrictTo("Admin", "Coach"),Controller.addPlayer)
         .get(Controller.getPlayers);
+router.route('/:id/coach')
+        .post(protect,restrictTo("Admin"),Controller.addCoach)
+        .get(Controller.getCoachs);
 
 router.delete('/:id/player/:player_id', protect, restrictTo("Admin"), Controller.removePlayer);
 

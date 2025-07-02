@@ -12,16 +12,24 @@ import {
   verifyToken,
 } from '../utils/token';
 import { sendEmail } from '../utils/emailService';
+import { Team } from '../teams/model';
 
 const register = catchAsync(async (req: Request, res: Response) => {
-  const { first_name, last_name, email, password } = req.body;
+  const { first_name, last_name, email, password, team_code , role } = req.body;
 
-  if (!first_name || !email || !password || !last_name) {
+  if (!first_name || !email || !password || !last_name || role) {
     throw new AppError('Required fields are missing', 400);
   }
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new AppError('Email already in use', 400);
+  }
+  let existingTeam;
+  if (team_code) {
+    existingTeam = await Team.findOne({ team_code });
+    if (!existingTeam) {
+      throw new AppError('Team not found', 400);
+    }
   }
 
   const user = await User.create({
@@ -29,7 +37,13 @@ const register = catchAsync(async (req: Request, res: Response) => {
     last_name,
     email,
     password,
+    role
   });
+  if(existingTeam && user){
+    // Cast _id to Types.ObjectId to avoid type error
+    user.team_id = existingTeam._id as import('mongoose').Types.ObjectId;
+    await user.save(); // Ensure save is awaited
+  }
   res.status(201).json({
     success: true,
     message: 'Registration successfully completed',
