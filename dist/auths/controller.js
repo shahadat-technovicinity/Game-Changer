@@ -40,6 +40,13 @@ const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
         // Cast _id to Types.ObjectId to avoid type error
         user.team_id = existingTeam._id;
         await user.save(); // Ensure save is awaited
+        if (Array.isArray(existingTeam.players_id)) {
+            existingTeam.players_id.push(user._id);
+        }
+        else {
+            existingTeam.players_id = [user._id];
+        }
+        await existingTeam.save();
     }
     res.status(201).json({
         success: true,
