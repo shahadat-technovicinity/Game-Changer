@@ -43,6 +43,12 @@ const register = catchAsync(async (req: Request, res: Response) => {
     // Cast _id to Types.ObjectId to avoid type error
     user.team_id = existingTeam._id as import('mongoose').Types.ObjectId;
     await user.save(); // Ensure save is awaited
+    if (Array.isArray(existingTeam.players_id)) {
+      existingTeam.players_id.push(user._id as import('mongoose').Types.ObjectId);
+    } else {
+      existingTeam.players_id = [user._id as import('mongoose').Types.ObjectId];
+    }
+    await existingTeam.save();
   }
   res.status(201).json({
     success: true,
