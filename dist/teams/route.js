@@ -15,6 +15,9 @@ router.route('/:id')
     .get(controller_1.Controller.getById)
     .delete(auth_1.protect, (0, auth_1.restrictTo)("Admin"), controller_1.Controller.remove);
 router.route('/:id/player')
-    .post(auth_1.protect, (0, auth_1.restrictTo)("Admin"), controller_1.Controller.addPlayer)
+    .post(auth_1.protect, (0, auth_1.restrictTo)("Admin", "Coach"), controller_1.Controller.addPlayer)
     .get(controller_1.Controller.getPlayers);
+router.route('/:id/coach')
+    .post(auth_1.protect, (0, auth_1.restrictTo)("Admin"), controller_1.Controller.addCoach)
+    .get(controller_1.Controller.getCoachs);
 router.delete('/:id/player/:player_id', auth_1.protect, (0, auth_1.restrictTo)("Admin"), controller_1.Controller.removePlayer);

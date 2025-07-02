@@ -45,6 +45,7 @@ var UserRole;
     UserRole["SUPER_ADMIN"] = "Super Admin";
     UserRole["ADMIN"] = "Admin";
     UserRole["PLAYER"] = "Player";
+    UserRole["COACH"] = "Coach";
 })(UserRole || (exports.UserRole = UserRole = {}));
 // Define schema
 const userSchema = new mongoose_1.Schema({

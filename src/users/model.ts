@@ -5,7 +5,8 @@ import bcrypt from 'bcrypt';
 export enum UserRole {
   SUPER_ADMIN = 'Super Admin',
   ADMIN = 'Admin',
-  PLAYER = 'Player'
+  PLAYER = 'Player',
+  COACH = 'Coach'
 }
 
 // Interface for User document
