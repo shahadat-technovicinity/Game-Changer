@@ -31,7 +31,7 @@ const getAll = async (query: any): Promise<{ items: ITeam[]; paginationData: any
 
   const [items, totalItems] = await Promise.all([
     Team.find(finalQuery)
-      .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id'])
+      .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id'])
       .sort(sortQuery)
       .skip(skip)
       .limit(limit),
@@ -48,7 +48,7 @@ const getAll = async (query: any): Promise<{ items: ITeam[]; paginationData: any
 };
 
 const getById = async (id: string) => {
-  return await Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id']);
+  return await Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id','coaches_id']);
 };
 
 const addPlayer = async (teamId: string, data: Partial<IUser>) => {
@@ -61,6 +61,7 @@ const addPlayer = async (teamId: string, data: Partial<IUser>) => {
     player.first_name = data.first_name ?? player.first_name;
     player.last_name = data.last_name ?? player.last_name;
     player.role = data.role ?? player.role;
+    player.jersey_no = data.jersey_no ?? player.jersey_no;
     player.team_id  = new mongoose.Types.ObjectId(teamId);
     await player.save();
   } else {
@@ -72,7 +73,8 @@ const addPlayer = async (teamId: string, data: Partial<IUser>) => {
       email: data.email,
       role: data.role,
       team_id: teamId,
-      password: temp_password
+      password: temp_password,
+      jersey_no: data.jersey_no
     });
   }
 
@@ -108,6 +110,7 @@ const addPlayer = async (teamId: string, data: Partial<IUser>) => {
     email: player.email,
     team: updatedTeam?.team_name,
     password: temp_password,
+    jersey_no: player.jersey_no,
   });
   }
   else{
@@ -121,7 +124,8 @@ const addPlayer = async (teamId: string, data: Partial<IUser>) => {
     mailContent = ejs.render(emailTemplate, {
     name: `${player.first_name} ${player.last_name}`,
     email: player.email,
-    team: updatedTeam?.team_name
+    team: updatedTeam?.team_name,
+    jersey_no: player.jersey_no,
     });
   }
 

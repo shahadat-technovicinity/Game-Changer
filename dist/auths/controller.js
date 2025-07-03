@@ -26,7 +26,7 @@ const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
     if (team_code) {
         existingTeam = await model_2.Team.findOne({ team_code });
         if (!existingTeam) {
-            throw new appError_1.AppError('Team not found', 400);
+            throw new appError_1.AppError('Team not found', 401);
         }
     }
     const user = await model_1.User.create({
@@ -125,7 +125,7 @@ const refreshAccessToken = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const decoded = (0, token_1.verifyToken)(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await model_1.User.findById(decoded.id);
     if (!user) {
-        throw new appError_1.AppError('User not found', 401);
+        throw new appError_1.AppError('User not found', 404);
     }
     const accessToken = (0, token_1.generateAccessToken)({ id: user._id });
     res.status(200).json({
@@ -138,7 +138,7 @@ const forgetPassword = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { email } = req.body;
     const user = await model_1.User.findOne({ email });
     if (!user) {
-        throw new appError_1.AppError('User not found', 401);
+        throw new appError_1.AppError('User not found', 404);
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.forget_password_code = otp;

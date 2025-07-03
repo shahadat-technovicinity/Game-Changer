@@ -85,7 +85,7 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUserById  = catchAsync(async (req: Request, res: Response) => {
-  const { first_name, last_name, device_token } = req.body;
+  const { first_name, last_name, device_token, jersey_no } = req.body;
   const  id  = req.params.id;
 
   // Validate required fields
@@ -98,6 +98,8 @@ const updateUserById  = catchAsync(async (req: Request, res: Response) => {
   if (first_name) payload.first_name = first_name;
   if (last_name) payload.last_name = last_name;
   if (device_token) payload.device_token = device_token;
+  if (jersey_no) payload.jersey_no = jersey_no;
+
 
   if (req.file) {
     const uploadResult = await UploadCloudinary(req.file);
