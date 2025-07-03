@@ -41,7 +41,8 @@ const getCreatedByTeam = async (teamId: string,query: any) : Promise<{ items: IE
 
 const getCreatedByOpponent = async (teamId: string,query: any) : Promise<{ items: IEvent[]; paginationData: any }> => {
     const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
-    const filter = {opponet_team_id:teamId, ...finalQuery};
+    const filter = {opponent_team_id:teamId, ...finalQuery};
+    console.log("Opponent in service: ", teamId);
     const [items, totalItems] = await Promise.all([
     Event.find(filter)
         .populate(['admin_id', 'team_id', 'opponent_team_id'])
