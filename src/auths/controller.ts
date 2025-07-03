@@ -17,7 +17,7 @@ import { Team } from '../teams/model';
 const register = catchAsync(async (req: Request, res: Response) => {
   const { first_name, last_name, email, password, team_code , role } = req.body;
 
-  if (!first_name || !email || !password || !last_name || role) {
+  if (!first_name || !email || !password || !last_name) {
     throw new AppError('Required fields are missing', 400);
   }
   const existingUser = await User.findOne({ email });
