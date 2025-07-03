@@ -101,15 +101,16 @@ const getById = catchAsync(async (req: Request, res: Response) => {
 
 const addPlayer = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { first_name, last_name, email} = req.body;
-  if (!first_name || !email || !last_name) {
+  const { first_name, last_name, email, jersey_no} = req.body;
+  if (!first_name || !email || !last_name || !jersey_no) {
     throw new AppError('Required fields are missing', 400);
   }
   const payload: Partial<IUser> = {
     first_name,
     last_name,
     email,
-    role: UserRole.PLAYER
+    role: UserRole.PLAYER,
+    jersey_no
   };
   const team = await Service.addPlayer(id,payload);
   res.status(200).json({ success: true,message: "Player added to the team successfully", data: team });
