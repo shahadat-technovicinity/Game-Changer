@@ -101,6 +101,7 @@ const getCreatedByTeam = (0, catchAsync_1.catchAsync)(async (req, res) => {
 });
 const getCreatedByOpponent = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { team_id } = req.params;
+    console.log("Opponent: ", team_id);
     const events = await service_1.Service.getCreatedByOpponent(team_id, req.query);
     res.status(200).json({ success: true, message: "Retrived all events successfully", data: events });
 });
