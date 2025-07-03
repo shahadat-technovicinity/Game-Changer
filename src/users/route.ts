@@ -1,6 +1,6 @@
 import express from "express";
 import { Controller } from "./controller";
-import { protect} from '../middleware/auth';
+import { protect, restrictTo } from '../middleware/auth';
 import { upload } from "../middleware/uploadFile";
 
 const router = express.Router();

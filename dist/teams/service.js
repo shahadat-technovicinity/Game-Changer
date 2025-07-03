@@ -30,7 +30,7 @@ const getAll = async (query) => {
     const { skip, limit, finalQuery, sortQuery, page } = (0, queryHelper_1.queryHelper)(query);
     const [items, totalItems] = await Promise.all([
         model_1.Team.find(finalQuery)
-            .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id'])
+            .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id'])
             .sort(sortQuery)
             .skip(skip)
             .limit(limit),
@@ -46,7 +46,7 @@ const getAll = async (query) => {
     return { items, paginationData };
 };
 const getById = async (id) => {
-    return await model_1.Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id']);
+    return await model_1.Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id']);
 };
 const addPlayer = async (teamId, data) => {
     // Try to find the player by email
@@ -57,6 +57,7 @@ const addPlayer = async (teamId, data) => {
         player.first_name = data.first_name ?? player.first_name;
         player.last_name = data.last_name ?? player.last_name;
         player.role = data.role ?? player.role;
+        player.jersey_no = data.jersey_no ?? player.jersey_no;
         player.team_id = new mongoose_1.default.Types.ObjectId(teamId);
         await player.save();
     }
@@ -69,7 +70,8 @@ const addPlayer = async (teamId, data) => {
             email: data.email,
             role: data.role,
             team_id: teamId,
-            password: temp_password
+            password: temp_password,
+            jersey_no: data.jersey_no
         });
     }
     // Update team with player if not already added
@@ -95,6 +97,7 @@ const addPlayer = async (teamId, data) => {
             email: player.email,
             team: updatedTeam?.team_name,
             password: temp_password,
+            jersey_no: player.jersey_no,
         });
     }
     else {
@@ -103,7 +106,8 @@ const addPlayer = async (teamId, data) => {
         mailContent = ejs_1.default.render(emailTemplate, {
             name: `${player.first_name} ${player.last_name}`,
             email: player.email,
-            team: updatedTeam?.team_name
+            team: updatedTeam?.team_name,
+            jersey_no: player.jersey_no,
         });
     }
     (0, emailService_1.sendEmail)(player.email, subject, mailContent);
