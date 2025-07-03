@@ -15,7 +15,7 @@ const emailService_1 = require("../utils/emailService");
 const model_2 = require("../teams/model");
 const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { first_name, last_name, email, password, team_code, role } = req.body;
-    if (!first_name || !email || !password || !last_name || role) {
+    if (!first_name || !email || !password || !last_name) {
         throw new appError_1.AppError('Required fields are missing', 400);
     }
     const existingUser = await model_1.User.findOne({ email });
