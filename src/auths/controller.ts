@@ -28,7 +28,7 @@ const register = catchAsync(async (req: Request, res: Response) => {
   if (team_code) {
     existingTeam = await Team.findOne({ team_code });
     if (!existingTeam) {
-      throw new AppError('Team not found', 400);
+      throw new AppError('Team not found', 401);
     }
   }
 
@@ -153,7 +153,7 @@ const refreshAccessToken = catchAsync(async (req: Request, res: Response) => {
 
   const user = await User.findById(decoded.id);
   if (!user) {
-    throw new AppError('User not found', 401);
+    throw new AppError('User not found', 404);
   }
 
   const accessToken = generateAccessToken({ id: user._id });
@@ -169,7 +169,7 @@ const forgetPassword = catchAsync(async (req: Request, res: Response) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError('User not found', 401);
+    throw new AppError('User not found', 404);
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();

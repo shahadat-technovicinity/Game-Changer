@@ -92,15 +92,16 @@ const getById = (0, catchAsync_1.catchAsync)(async (req, res) => {
 });
 const addPlayer = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
-    const { first_name, last_name, email } = req.body;
-    if (!first_name || !email || !last_name) {
+    const { first_name, last_name, email, jersey_no } = req.body;
+    if (!first_name || !email || !last_name || !jersey_no) {
         throw new appError_1.AppError('Required fields are missing', 400);
     }
     const payload = {
         first_name,
         last_name,
         email,
-        role: model_1.UserRole.PLAYER
+        role: model_1.UserRole.PLAYER,
+        jersey_no
     };
     const team = await service_1.Service.addPlayer(id, payload);
     res.status(200).json({ success: true, message: "Player added to the team successfully", data: team });
