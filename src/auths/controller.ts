@@ -87,6 +87,10 @@ const login = catchAsync(async (req: Request, res: Response) => {
     throw new AppError('Invalid credentials', 401);
   }
 
+  if (user.is_deleted) {
+    throw new AppError('Your account has been deleted. Please contact admin for any assistance.', 400);
+  }
+
   const accessToken = generateAccessToken({ id: user._id });
   const refreshToken = generateRefreshToken({ id: user._id });
 
@@ -271,3 +275,4 @@ export const Controller =  {
   resetPassword,
   deviceTokenUpdate,
 };
+

@@ -45,10 +45,13 @@ const eventSchema = new mongoose_1.Schema({
     duration: { type: Number, required: true },
     arrive_time: { type: Number, required: false },
     all_day: { type: Boolean, default: false },
+    is_live: { type: Boolean, default: false },
     repeats: { type: String, enum: ['Never', 'Daily', 'Weekly', 'Monthly'], default: 'Never' },
     location: { type: String, default: null },
     image: { type: String, default: null },
     notes: { type: String, default: null },
+    live_videos: [{ type: String, default: null }],
+    uploaded_videos: [{ type: String, default: null }],
 }, { timestamps: true });
 const Event = mongoose_1.default.model('Event', eventSchema);
 exports.Event = Event;

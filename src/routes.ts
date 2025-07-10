@@ -10,6 +10,7 @@ import {eventRouter} from "./events/route"; // ES6 import style
 import {userRouter} from "./users/route"; // ES6 import style
 import {additionalRouter} from "./additionals/routes"; // ES6 import style
 import {liveStreamingRouter} from "./live_streaming/route"; // ES6 import style
+import {storagePackageRouter} from "./storage_packages/route"; // ES6 import style
 
 const router = express.Router();
 
@@ -24,6 +25,7 @@ router.use("/events", eventRouter);
 router.use("/users", userRouter);
 router.use("/additionals", additionalRouter);
 router.use("/live-streaming", liveStreamingRouter);
+router.use("/storag-packages", storagePackageRouter);
 // Default route
 router.get("/", (req, res) => {
     res.status(200).send("<h1> Welcome to Game Changer server app </h1>");

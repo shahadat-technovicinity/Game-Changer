@@ -14,6 +14,9 @@ export interface IEvent extends Document {
   location?: string;
   notes?: string;
   image: string;
+  is_live: Boolean;
+  live_videos?: string[];
+  uploaded_videos?: string[];
 }
 
 const eventSchema = new Schema<IEvent>(
@@ -27,10 +30,13 @@ const eventSchema = new Schema<IEvent>(
     duration: { type: Number, required: true },
     arrive_time: { type: Number, required: false },
     all_day: { type: Boolean, default: false },
+    is_live: { type: Boolean, default: false },
     repeats: { type: String, enum: ['Never', 'Daily', 'Weekly', 'Monthly'], default: 'Never' },
     location: { type: String, default: null},
     image: { type: String, default: null},
     notes: { type: String, default: null},
+    live_videos: [{ type: String, default: null }],
+    uploaded_videos: [{ type: String, default: null }],
   },
   { timestamps: true }
 );
