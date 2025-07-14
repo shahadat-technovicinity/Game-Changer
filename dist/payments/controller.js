@@ -33,7 +33,7 @@ const checkout = (0, catchAsync_1.catchAsync)(async (req, res) => {
             },
         ],
         mode: 'payment',
-        success_url: `${process.env.SERVER_URL}/api/v1/payments/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${process.env.SERVER_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${process.env.SERVER_URL}/cancel`,
         metadata: {
             userId: String(userId),
@@ -75,6 +75,9 @@ const handleWebhook = (0, catchAsync_1.catchAsync)(async (req, res) => {
 });
 const success = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const sessionId = req.query.session_id;
+    if (!sessionId) {
+        return res.status(400).json({ success: false, message: 'Session ID is required' });
+    }
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         const stripePaymentIntentId = session.id;
@@ -87,31 +90,36 @@ const success = (0, catchAsync_1.catchAsync)(async (req, res) => {
             stripePaymentIntentId,
             status: 'pending',
             user: userId,
-            packageId: packageId,
+            packageId,
         });
+        if (!payment) {
+            return res.status(404).json({ success: false, message: 'Payment not found or already succeeded' });
+        }
+        // ✅ Update payment status
+        payment.status = 'succeeded';
+        await payment.save();
+        // ✅ Update user storage
         const user = await model_3.User.findById(userId);
-        const packageData = await model_2.StoragePackage.findById(packageId);
-        // Assuming packageData has a size field that indicates the storage size
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
-        user.storage_size = (user.storage_size ?? 0) + (packageData?.storage_size ?? 0); // Ensure storage_size is defined
-        await user.save();
-        // Update payment status
-        if (!payment) {
-            return res.status(404).json({ success: false, message: 'Payment not found' });
+        const storagePackage = await model_2.StoragePackage.findById(packageId);
+        if (!storagePackage) {
+            return res.status(404).json({ success: false, message: 'StoragePackage not found' });
         }
-        payment.status = 'succeeded';
-        await payment.save();
-        res.status(200).json({
+        const userStorage = user.storage_size || 0;
+        const packageStorage = storagePackage.storage_size || 0;
+        user.storage_size = userStorage + packageStorage;
+        await user.save();
+        return res.status(200).json({
             success: true,
-            message: 'Payment successful',
+            message: 'Payment successful. Storage upgraded.',
             payment,
         });
     }
     catch (error) {
         console.error('❌ Error in payment success handler:', error.message);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
 exports.Controller = { checkout, handleWebhook, success };
