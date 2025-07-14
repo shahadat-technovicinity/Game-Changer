@@ -45,6 +45,7 @@ var UserRole;
     UserRole["SUPER_ADMIN"] = "Super Admin";
     UserRole["ADMIN"] = "Admin";
     UserRole["PLAYER"] = "Player";
+    UserRole["COACH"] = "Coach";
 })(UserRole || (exports.UserRole = UserRole = {}));
 // Define schema
 const userSchema = new mongoose_1.Schema({
@@ -61,6 +62,7 @@ const userSchema = new mongoose_1.Schema({
     device_token: { type: String },
     access_token: { type: String },
     refresh_token: { type: String },
+    jersey_no: { type: String, default: null },
     is_deleted: { type: Boolean, default: false },
     forget_password_code: { type: String },
     forget_password_code_time: { type: Date },

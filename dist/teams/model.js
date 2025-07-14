@@ -43,8 +43,10 @@ const teamSchema = new mongoose_1.Schema({
     team_place: { type: String, required: true },
     image: { type: String, default: null, required: false },
     team_name: { type: String, required: true },
+    team_code: { type: String, required: true, unique: true },
     season_type: { type: mongoose_1.Schema.Types.ObjectId, ref: 'SeasonType', required: true },
     players_id: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'User' }],
+    coaches_id: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true });
 const Team = mongoose_1.default.model('Team', teamSchema);
 exports.Team = Team;

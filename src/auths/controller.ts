@@ -12,9 +12,10 @@ import {
   verifyToken,
 } from '../utils/token';
 import { sendEmail } from '../utils/emailService';
+import { Team } from '../teams/model';
 
 const register = catchAsync(async (req: Request, res: Response) => {
-  const { first_name, last_name, email, password } = req.body;
+  const { first_name, last_name, email, password, team_code , role } = req.body;
 
   if (!first_name || !email || !password || !last_name) {
     throw new AppError('Required fields are missing', 400);
@@ -23,13 +24,32 @@ const register = catchAsync(async (req: Request, res: Response) => {
   if (existingUser) {
     throw new AppError('Email already in use', 400);
   }
+  let existingTeam;
+  if (team_code) {
+    existingTeam = await Team.findOne({ team_code });
+    if (!existingTeam) {
+      throw new AppError('Team not found', 401);
+    }
+  }
 
   const user = await User.create({
     first_name,
     last_name,
     email,
     password,
+    role
   });
+  if(existingTeam && user){
+    // Cast _id to Types.ObjectId to avoid type error
+    user.team_id = existingTeam._id as import('mongoose').Types.ObjectId;
+    await user.save(); // Ensure save is awaited
+    if (Array.isArray(existingTeam.players_id)) {
+      existingTeam.players_id.push(user._id as import('mongoose').Types.ObjectId);
+    } else {
+      existingTeam.players_id = [user._id as import('mongoose').Types.ObjectId];
+    }
+    await existingTeam.save();
+  }
   res.status(201).json({
     success: true,
     message: 'Registration successfully completed',
@@ -133,7 +153,7 @@ const refreshAccessToken = catchAsync(async (req: Request, res: Response) => {
 
   const user = await User.findById(decoded.id);
   if (!user) {
-    throw new AppError('User not found', 401);
+    throw new AppError('User not found', 404);
   }
 
   const accessToken = generateAccessToken({ id: user._id });
@@ -149,7 +169,7 @@ const forgetPassword = catchAsync(async (req: Request, res: Response) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new AppError('User not found', 401);
+    throw new AppError('User not found', 404);
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();

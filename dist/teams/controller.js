@@ -6,8 +6,10 @@ const catchAsync_1 = require("../utils/catchAsync");
 const appError_1 = require("../utils/appError");
 const uploadCloudinary_1 = require("../utils/uploadCloudinary");
 const model_1 = require("../users/model");
+const generateUniqueCode_1 = require("../utils/generateUniqueCode");
 const create = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const admin_id = req.user._id;
+    console.log("admin_id: ", admin_id);
     const { season_type, team_name, team_place, age_type, team_type, game_type } = req.body;
     if (!season_type && !team_name && !team_place && !age_type && !team_type && !game_type) {
         throw new appError_1.AppError("Required fields are missing", 400);
@@ -17,6 +19,7 @@ const create = (0, catchAsync_1.catchAsync)(async (req, res) => {
         const uploadResult = await (0, uploadCloudinary_1.UploadCloudinary)(req.file);
         imageUrl = uploadResult.secure_url;
     }
+    const team_code = await (0, generateUniqueCode_1.generateUniqueReferralCode)();
     const payload = {
         admin_id,
         season_type,
@@ -25,8 +28,10 @@ const create = (0, catchAsync_1.catchAsync)(async (req, res) => {
         age_type,
         team_type,
         game_type,
-        image: imageUrl
+        image: imageUrl,
+        team_code
     };
+    console.log("PayLoad: ", payload);
     const item = await service_1.Service.create(payload);
     res.status(201).json({
         success: true,
@@ -76,11 +81,33 @@ const getPlayers = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { players, pagination } = await service_1.Service.getPlayers(id, req.query);
     res.status(200).json({ success: true, message: "Retrived all players of team successfully", data: players, pagination });
 });
+const getCoachs = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { id } = req.params;
+    const { coaches, pagination } = await service_1.Service.getCoachs(id, req.query);
+    res.status(200).json({ success: true, message: "Retrived all players of team successfully", data: coaches, pagination });
+});
 const getById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const team = await service_1.Service.getById(req.params.id);
     res.status(200).json({ success: true, message: "Team is retrived successfully", data: team });
 });
 const addPlayer = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { id } = req.params;
+    const { first_name, last_name, email, jersey_no } = req.body;
+    if (!first_name || !email || !last_name || !jersey_no) {
+        throw new appError_1.AppError('Required fields are missing', 400);
+    }
+    const payload = {
+        first_name,
+        last_name,
+        email,
+        role: model_1.UserRole.PLAYER,
+        jersey_no
+    };
+    const team = await service_1.Service.addPlayer(id, payload);
+    res.status(200).json({ success: true, message: "Player added to the team successfully", data: team });
+    // TODO: Send Email
+});
+const addCoach = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
     const { first_name, last_name, email } = req.body;
     if (!first_name || !email || !last_name) {
@@ -90,9 +117,9 @@ const addPlayer = (0, catchAsync_1.catchAsync)(async (req, res) => {
         first_name,
         last_name,
         email,
-        role: model_1.UserRole.PLAYER
+        role: model_1.UserRole.COACH
     };
-    const team = await service_1.Service.addPlayer(id, payload);
+    const team = await service_1.Service.addCoach(id, payload);
     res.status(200).json({ success: true, message: "Player added to the team successfully", data: team });
     // TODO: Send Email
 });
@@ -109,4 +136,4 @@ const remove = (0, catchAsync_1.catchAsync)(async (req, res) => {
     }
     res.status(200).json({ success: true, message: "Team deleted" });
 });
-exports.Controller = { create, update, getById, getAll, addPlayer, removePlayer, getPlayers, remove };
+exports.Controller = { create, update, getById, getAll, addPlayer, addCoach, getCoachs, removePlayer, getPlayers, remove };

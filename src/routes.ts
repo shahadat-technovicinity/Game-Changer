@@ -8,6 +8,7 @@ import {authRouter} from "./auths/route"; // ES6 import style
 import {teamRouter} from "./teams/route"; // ES6 import style
 import {eventRouter} from "./events/route"; // ES6 import style
 import {userRouter} from "./users/route"; // ES6 import style
+import {additionalRouter} from "./additionals/routes"; // ES6 import style
 import {liveStreamingRouter} from "./live_streaming/route"; // ES6 import style
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.use("/auths", authRouter);
 router.use("/teams", teamRouter);
 router.use("/events", eventRouter);
 router.use("/users", userRouter);
+router.use("/additionals", additionalRouter);
 router.use("/live-streaming", liveStreamingRouter);
 // Default route
 router.get("/", (req, res) => {

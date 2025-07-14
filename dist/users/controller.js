@@ -18,7 +18,7 @@ const getById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     return res.status(200).json({
         success: true,
         message: "User retrieved successfully",
-        data: item,
+        data: { user: item },
     });
 });
 const blockUserById = (0, catchAsync_1.catchAsync)(async (req, res) => {
@@ -77,7 +77,7 @@ const getUserById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     });
 });
 const updateUserById = (0, catchAsync_1.catchAsync)(async (req, res) => {
-    const { first_name, last_name, device_token } = req.body;
+    const { first_name, last_name, device_token, jersey_no } = req.body;
     const id = req.params.id;
     // Validate required fields
     if (!first_name && !last_name && !device_token && !req.file) {
@@ -90,6 +90,8 @@ const updateUserById = (0, catchAsync_1.catchAsync)(async (req, res) => {
         payload.last_name = last_name;
     if (device_token)
         payload.device_token = device_token;
+    if (jersey_no)
+        payload.jersey_no = jersey_no;
     if (req.file) {
         const uploadResult = await (0, uploadCloudinary_1.UploadCloudinary)(req.file);
         payload.image = uploadResult.secure_url;

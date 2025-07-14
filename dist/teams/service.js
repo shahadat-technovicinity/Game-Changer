@@ -30,7 +30,7 @@ const getAll = async (query) => {
     const { skip, limit, finalQuery, sortQuery, page } = (0, queryHelper_1.queryHelper)(query);
     const [items, totalItems] = await Promise.all([
         model_1.Team.find(finalQuery)
-            .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id'])
+            .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id'])
             .sort(sortQuery)
             .skip(skip)
             .limit(limit),
@@ -46,27 +46,32 @@ const getAll = async (query) => {
     return { items, paginationData };
 };
 const getById = async (id) => {
-    return await model_1.Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id']);
+    return await model_1.Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id']);
 };
 const addPlayer = async (teamId, data) => {
     // Try to find the player by email
     let player = await model_2.User.findOne({ email: data.email });
+    let temp_password;
     if (player) {
         // Update existing player's info
         player.first_name = data.first_name ?? player.first_name;
         player.last_name = data.last_name ?? player.last_name;
         player.role = data.role ?? player.role;
+        player.jersey_no = data.jersey_no ?? player.jersey_no;
         player.team_id = new mongoose_1.default.Types.ObjectId(teamId);
         await player.save();
     }
     else {
         // Create new player
+        temp_password = Math.floor(100000 + Math.random() * 900000).toString();
         player = await model_2.User.create({
             first_name: data.first_name,
             last_name: data.last_name,
             email: data.email,
             role: data.role,
             team_id: teamId,
+            password: temp_password,
+            jersey_no: data.jersey_no
         });
     }
     // Update team with player if not already added
@@ -81,14 +86,91 @@ const addPlayer = async (teamId, data) => {
     ])
         .populate('players_id', 'first_name last_name email image role team_id');
     // Send Invitation Email
-    const emailTemplatePath = path_1.default.resolve(__dirname, "..", "email_templates", "player_add_email.ejs");
-    const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
     const subject = `You're Invited to Join ${updatedTeam?.team_name} on Game Changer!`;
-    const mailContent = ejs_1.default.render(emailTemplate, {
-        name: `${player.first_name} ${player.last_name}`,
-        email: player.email,
-        team: updatedTeam?.team_name
-    });
+    let mailContent;
+    console.log("Temp Password: ", temp_password);
+    if (temp_password) {
+        const emailTemplatePath = path_1.default.resolve(__dirname, "..", "email_templates", "player_add_email.ejs");
+        const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
+        mailContent = ejs_1.default.render(emailTemplate, {
+            name: `${player.first_name} ${player.last_name}`,
+            email: player.email,
+            team: updatedTeam?.team_name,
+            password: temp_password,
+            jersey_no: player.jersey_no,
+        });
+    }
+    else {
+        const emailTemplatePath = path_1.default.resolve(__dirname, "..", "email_templates", "player_add_email_without_pass.ejs");
+        const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
+        mailContent = ejs_1.default.render(emailTemplate, {
+            name: `${player.first_name} ${player.last_name}`,
+            email: player.email,
+            team: updatedTeam?.team_name,
+            jersey_no: player.jersey_no,
+        });
+    }
+    (0, emailService_1.sendEmail)(player.email, subject, mailContent);
+    return updatedTeam;
+};
+const addCoach = async (teamId, data) => {
+    // Try to find the player by email
+    let player = await model_2.User.findOne({ email: data.email });
+    let temp_password;
+    if (player) {
+        // Update existing player's info
+        player.first_name = data.first_name ?? player.first_name;
+        player.last_name = data.last_name ?? player.last_name;
+        player.role = data.role ?? player.role;
+        player.team_id = new mongoose_1.default.Types.ObjectId(teamId);
+        await player.save();
+    }
+    else {
+        // Create new player
+        temp_password = Math.floor(100000 + Math.random() * 900000).toString();
+        player = await model_2.User.create({
+            first_name: data.first_name,
+            last_name: data.last_name,
+            email: data.email,
+            role: data.role,
+            team_id: teamId,
+            password: temp_password
+        });
+    }
+    // Update team with player if not already added
+    const updatedTeam = await model_1.Team.findByIdAndUpdate(teamId, { $addToSet: { coaches_id: player._id } }, // Avoid duplicates
+    { new: true })
+        .populate([
+        { path: 'admin_id', select: 'first_name last_name email image' },
+        'game_type',
+        'team_type',
+        'age_type',
+        'season_type'
+    ])
+        .populate('coaches_id', 'first_name last_name email image role team_id');
+    // Send Invitation Email
+    const subject = `You're Invited to Join ${updatedTeam?.team_name} on Game Changer!`;
+    let mailContent;
+    console.log("Temp Password: ", temp_password);
+    if (temp_password) {
+        const emailTemplatePath = path_1.default.resolve(__dirname, "..", "email_templates", "player_add_email.ejs");
+        const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
+        mailContent = ejs_1.default.render(emailTemplate, {
+            name: `${player.first_name} ${player.last_name}`,
+            email: player.email,
+            team: updatedTeam?.team_name,
+            password: temp_password,
+        });
+    }
+    else {
+        const emailTemplatePath = path_1.default.resolve(__dirname, "..", "email_templates", "player_add_email_without_pass.ejs");
+        const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
+        mailContent = ejs_1.default.render(emailTemplate, {
+            name: `${player.first_name} ${player.last_name}`,
+            email: player.email,
+            team: updatedTeam?.team_name
+        });
+    }
     (0, emailService_1.sendEmail)(player.email, subject, mailContent);
     return updatedTeam;
 };
@@ -126,4 +208,26 @@ const getPlayers = async (teamId, query) => {
         }
     };
 };
-exports.Service = { create, update, getAll, getById, addPlayer, removePlayer, getPlayers, remove };
+const getCoachs = async (teamId, query) => {
+    const { skip, limit, finalQuery, sortQuery, page } = (0, queryHelper_1.queryHelper)(query);
+    const filter = { _id: teamId, ...finalQuery };
+    const teams = await model_1.Team.find(filter).lean();
+    const team = teams[0];
+    if (!team)
+        throw new appError_1.AppError("Team not found", 404);
+    const totalPlayers = team?.coaches_id?.length;
+    // Step 2: Paginate coaches manually using coaches_id
+    const paginatedPlayerIds = team.coaches_id?.slice(skip, skip + limit);
+    // Step 3: Fetch user details
+    const coaches = await model_2.User.find({ _id: { $in: paginatedPlayerIds } });
+    return {
+        coaches,
+        pagination: {
+            totalItems: totalPlayers,
+            totalPages: Math.ceil(totalPlayers / limit),
+            currentPage: page,
+            limit
+        }
+    };
+};
+exports.Service = { create, update, getAll, getById, addPlayer, addCoach, getCoachs, removePlayer, getPlayers, remove };

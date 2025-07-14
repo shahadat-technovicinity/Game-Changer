@@ -12,8 +12,9 @@ const appError_1 = require("../utils/appError");
 const catchAsync_1 = require("../utils/catchAsync");
 const token_1 = require("../utils/token");
 const emailService_1 = require("../utils/emailService");
+const model_2 = require("../teams/model");
 const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
+    const { first_name, last_name, email, password, team_code, role } = req.body;
     if (!first_name || !email || !password || !last_name) {
         throw new appError_1.AppError('Required fields are missing', 400);
     }
@@ -21,12 +22,32 @@ const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
     if (existingUser) {
         throw new appError_1.AppError('Email already in use', 400);
     }
+    let existingTeam;
+    if (team_code) {
+        existingTeam = await model_2.Team.findOne({ team_code });
+        if (!existingTeam) {
+            throw new appError_1.AppError('Team not found', 401);
+        }
+    }
     const user = await model_1.User.create({
         first_name,
         last_name,
         email,
         password,
+        role
     });
+    if (existingTeam && user) {
+        // Cast _id to Types.ObjectId to avoid type error
+        user.team_id = existingTeam._id;
+        await user.save(); // Ensure save is awaited
+        if (Array.isArray(existingTeam.players_id)) {
+            existingTeam.players_id.push(user._id);
+        }
+        else {
+            existingTeam.players_id = [user._id];
+        }
+        await existingTeam.save();
+    }
     res.status(201).json({
         success: true,
         message: 'Registration successfully completed',
@@ -104,7 +125,7 @@ const refreshAccessToken = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const decoded = (0, token_1.verifyToken)(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await model_1.User.findById(decoded.id);
     if (!user) {
-        throw new appError_1.AppError('User not found', 401);
+        throw new appError_1.AppError('User not found', 404);
     }
     const accessToken = (0, token_1.generateAccessToken)({ id: user._id });
     res.status(200).json({
@@ -117,7 +138,7 @@ const forgetPassword = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { email } = req.body;
     const user = await model_1.User.findOne({ email });
     if (!user) {
-        throw new appError_1.AppError('User not found', 401);
+        throw new appError_1.AppError('User not found', 404);
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.forget_password_code = otp;
