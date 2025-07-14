@@ -25,8 +25,10 @@ export interface IUser extends Document {
   team_id: mongoose.Types.ObjectId;
   is_deleted?: boolean;
   admin_teams: mongoose.Types.ObjectId[];
-  jersey_no: string,
-  
+  jersey_no: string;
+  storage_size?: number; // in GB
+  storage_used?: number; // in MB
+
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -52,6 +54,8 @@ const userSchema = new Schema<IUser>(
     forget_password_code_time: { type: Date },
     team_id: { type: Schema.Types.ObjectId, ref: 'Team' },
     admin_teams: [{ type: Schema.Types.ObjectId, ref: 'Team' }],
+    storage_size: { type: Number, default: 0 }, // in GB
+    storage_used: { type: Number, default: 0 } // in MB
   },
   {
     timestamps: true

@@ -13,7 +13,7 @@ export interface IPayment extends Document {
 
 const paymentSchema = new Schema<IPayment>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  packageId: { type: Schema.Types.ObjectId, ref: 'Package', required: true },
+  packageId: { type: Schema.Types.ObjectId, ref: 'StoragePackage', required: true },
   amount: { type: Number, required: true },
   currency: { type: String, default: 'usd' },
   status: { type: String, enum: ['pending', 'succeeded', 'failed'], default: 'pending' },
