@@ -24,7 +24,10 @@ export const UploadCloudinary = (
       return reject(new AppError("No file provided for upload", 400));
     }
 
-    cloudinary.uploader.upload(file.path, (error, result) => {
+    cloudinary.uploader.upload(file.path,{
+        resource_type: "auto", // 'image', 'video', or 'auto'
+        folder: "game-changer-uploads",
+      }, (error, result) => {
       if (error || !result?.secure_url) {
         return reject(new AppError("Image upload failed", 500));
       }

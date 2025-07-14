@@ -4,11 +4,15 @@ import { Request } from "express";
 import { FileFilterCallback } from "multer";
 import { AppError } from "../utils/appError";
 
-const MAX_FILE_SIZE = Number(process.env.MAX_FILE_SIZE) || 2097152;
+const MAX_FILE_SIZE = Number(process.env.MAX_FILE_SIZE) || 209715200; // Default to 200MB if not set in .env
 const ALLOWED_FILE_TYPE = process.env.ALLOWED_FILE_TYPE || [
   "jpeg",
   "jpg",
   "png",
+  "gif",
+  "webp",
+  "mp4",
+  "mov",
 ];
 
 const storage = multer.diskStorage({

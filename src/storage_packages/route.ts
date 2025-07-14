@@ -1,14 +1,16 @@
 import express from 'express';
 import { Controller } from './controller';
+import { upload } from "../middleware/uploadFile"
 const router = express.Router();
 
 // Public routes
-router.get('/', Controller.getAllPackages);
-router.get('/:id', Controller.getPackageById);
-
-// Admin routes (protected)
-router.post('/', Controller.create);
-router.post('/:id', Controller.update);
-router.delete('/:id', Controller.deactivatePackage);
-
+router
+    .route("/")
+    .post(Controller.create)
+    .get(Controller.getAllPackages);
+router
+    .route("/:id")
+    .get(Controller.getPackageById)
+    .post(Controller.update)
+    .patch(Controller.deactivatePackage);
 export {router as storagePackageRouter};
