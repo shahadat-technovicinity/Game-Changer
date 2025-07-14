@@ -74,6 +74,9 @@ const login = (0, catchAsync_1.catchAsync)(async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
         throw new appError_1.AppError('Invalid credentials', 401);
     }
+    if (user.is_deleted) {
+        throw new appError_1.AppError('Your account has been deleted. Please contact admin for any assistance.', 400);
+    }
     const accessToken = (0, token_1.generateAccessToken)({ id: user._id });
     const refreshToken = (0, token_1.generateRefreshToken)({ id: user._id });
     user.access_token = accessToken;

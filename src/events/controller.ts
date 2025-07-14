@@ -50,6 +50,25 @@ const getById = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({ success: true,message: "Event is retrived successfully", data: event });
 });
 
+const liveToggle = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { is_live } = req.body; // FIXED LINE
+  const payload: Partial<IEvent> = { is_live };
+  
+  const event = await Service.liveToggle(id, payload);
+  
+  if (!event) {
+    return res.status(404).json({ success: false, message: "Event is not found" });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Event status updated successfully to ${is_live ? "Live" : "Not Live"}.`,
+    data: event,
+  });
+});
+
+
 const update = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const {notes,location,repeats,all_day,arrive_time,duration,start_date,event_type,opponent_team_id,team_id,home_away} = req.body;
@@ -111,6 +130,10 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const {items,paginationData} = await Service.getAll(req.query);
   res.status(200).json({ success: true,message: "Retrived all events successfully", data: items, pagination: paginationData });
 });
+const getAllLive = catchAsync(async (req: Request, res: Response) => {
+  const {items,paginationData} = await Service.getAllLive(req.query);
+  res.status(200).json({ success: true,message: "Retrived all live events successfully", data: items, pagination: paginationData });
+});
 const getAllByAdmin = catchAsync(async (req: Request, res: Response) => {
   const admin_id = req.user._id;
   console.log("Admin_id : ", admin_id);
@@ -118,4 +141,26 @@ const getAllByAdmin = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({ success: true,message: "Retrived all events successfully by Admin", data: items, pagination: paginationData });
 });
 
-export const Controller = {create,getCreatedByTeam,getCreatedByOpponent,getTotalEventsOfTeam,getById,update,remove,getAll,getAllByAdmin }
+export const uploadVideo = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!req.file) {
+    throw new AppError("No video file uploaded", 400);
+  }
+  
+  const uploadResult = await UploadCloudinary(req.file);
+  const videoUrl = uploadResult.secure_url;
+
+  const updatedEvent = await Service.uploadVideo(id, videoUrl);
+  
+  if (!updatedEvent) {
+    return res.status(404).json({ success: false, message: "Event not found" });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Video uploaded successfully",
+    data: updatedEvent,
+  });
+});
+
+export const Controller = {uploadVideo,create,getCreatedByTeam,getCreatedByOpponent,getTotalEventsOfTeam,getAllLive, getById,update,remove,getAll,getAllByAdmin,liveToggle}

@@ -16,6 +16,7 @@ const route_7 = require("./events/route"); // ES6 import style
 const route_8 = require("./users/route"); // ES6 import style
 const routes_1 = require("./additionals/routes"); // ES6 import style
 const route_9 = require("./live_streaming/route"); // ES6 import style
+const route_10 = require("./storage_packages/route"); // ES6 import style
 const router = express_1.default.Router();
 exports.routes = router;
 router.use("/game-types", route_1.gameTypesRouter);
@@ -28,6 +29,7 @@ router.use("/events", route_7.eventRouter);
 router.use("/users", route_8.userRouter);
 router.use("/additionals", routes_1.additionalRouter);
 router.use("/live-streaming", route_9.liveStreamingRouter);
+router.use("/storag-packages", route_10.storagePackageRouter);
 // Default route
 router.get("/", (req, res) => {
     res.status(200).send("<h1> Welcome to Game Changer server app </h1>");

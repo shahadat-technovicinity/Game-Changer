@@ -13,6 +13,9 @@ const getById = async (eventId: string) => {
 const update = async (eventId: string, data: Partial<IEvent>) => {
   return await Event.findByIdAndUpdate(eventId, data, { new: true }).populate(['admin_id', 'team_id', 'opponent_team_id']);
 };
+const liveToggle = async (eventId: string, data: Partial<IEvent>) => {
+  return await Event.findByIdAndUpdate(eventId, data, { new: true }).populate(['admin_id', 'team_id', 'opponent_team_id']);
+};
 
 const remove = async (eventId: string) => {
   return await Event.findByIdAndDelete(eventId);
@@ -109,6 +112,27 @@ const getAll = async (query: any): Promise<{ items: IEvent[]; paginationData: an
   return { items, paginationData };
 };
 
+const getAllLive = async (query: any): Promise<{ items: IEvent[]; paginationData: any }> => {
+  const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
+  const filter = { is_live: true, ...finalQuery };
+  const [items, totalItems] = await Promise.all([
+    Event.find(filter)
+      .populate(['admin_id', 'team_id', 'opponent_team_id'])
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(limit),
+    Event.countDocuments(filter),
+  ]);
+  const totalPages = Math.ceil(totalItems / limit);
+  const paginationData = {
+    totalItems,
+    totalPages,
+    currentPage: page,
+    limit,
+  };
+  return { items, paginationData };
+};
+
 const getAllByAdmin = async (admin_id: string,query: any): Promise<{ items: IEvent[]; paginationData: any }> => {
   const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
   console.log("Admin_id in service: ", admin_id);
@@ -131,4 +155,17 @@ const getAllByAdmin = async (admin_id: string,query: any): Promise<{ items: IEve
   return { items, paginationData };
 };
 
-export const Service = {create, getCreatedByTeam,getCreatedByOpponent,getTotalEventsOfTeam, getById, update,remove,getAll,getAllByAdmin};
+const uploadVideo = async (eventId: string, videoUrl: string) => {
+  const event = await Event.findById(eventId);
+  if (!event) {
+    throw new Error('Event not found');
+  }
+  if (!event.uploaded_videos) {
+    event.uploaded_videos = [];
+  }
+  event.uploaded_videos.push(videoUrl);
+  await event.save();
+  return event;
+};
+
+export const Service = {create,uploadVideo, getCreatedByTeam,getCreatedByOpponent,getTotalEventsOfTeam,liveToggle,getAllLive ,getById, update,remove,getAll,getAllByAdmin};
