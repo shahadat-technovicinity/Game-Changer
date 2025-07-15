@@ -33,8 +33,8 @@ const checkout = (0, catchAsync_1.catchAsync)(async (req, res) => {
             },
         ],
         mode: 'payment',
-        success_url: `${process.env.SERVER_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.SERVER_URL}/cancel`,
+        success_url: `${process.env.SERVER_URL}/api/v1/payments/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.SERVER_URL}/api/v1/cancel`,
         metadata: {
             userId: String(userId),
             packageId: String(packageData._id),
@@ -122,4 +122,40 @@ const success = (0, catchAsync_1.catchAsync)(async (req, res) => {
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 });
-exports.Controller = { checkout, handleWebhook, success };
+// GET /total-payments
+const totalPayment = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const total = await model_1.default.aggregate([
+        { $match: { status: 'succeeded' } },
+        { $group: { _id: null, totalAmount: { $sum: '$amount' } } }
+    ]);
+    res.status(200).json({
+        success: true,
+        totalAmount: total[0]?.totalAmount || 0
+    });
+});
+// GET /payment-list?page=1&limit=10&status=succeeded
+const paymenlist = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { page = 1, limit = 10, status } = req.query;
+    const pageInt = parseInt(page);
+    const limitInt = parseInt(limit);
+    const skip = (pageInt - 1) * limitInt;
+    const query = {};
+    if (status) {
+        query.status = status;
+    }
+    const payments = await model_1.default.find(query)
+        .populate('user', 'first_name last_name email')
+        .populate('packageId', 'name storage_size')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitInt);
+    const total = await model_1.default.countDocuments(query);
+    res.status(200).json({
+        success: true,
+        data: payments,
+        currentPage: pageInt,
+        totalPages: Math.ceil(total / limitInt),
+        totalPayments: total,
+    });
+});
+exports.Controller = { checkout, handleWebhook, success, totalPayment, paymenlist };

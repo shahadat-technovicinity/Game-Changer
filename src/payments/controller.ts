@@ -33,8 +33,8 @@ const checkout = catchAsync(async (req: Request, res: Response) => {
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.SERVER_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.SERVER_URL}/cancel`,
+    success_url: `${process.env.SERVER_URL}/api/v1/payments/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.SERVER_URL}/api/v1/cancel`,
     metadata: {
       userId: String(userId),
       packageId: String(packageData._id),
@@ -151,4 +151,49 @@ const success = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-export const Controller = {checkout, handleWebhook, success};
+// GET /total-payments
+const totalPayment = catchAsync(async (req: Request, res: Response) => {
+  const total = await Payment.aggregate([
+    { $match: { status: 'succeeded' } },
+    { $group: { _id: null, totalAmount: { $sum: '$amount' } } }
+  ]);
+
+  res.status(200).json({
+    success: true,
+    totalAmount: total[0]?.totalAmount || 0
+  });
+});
+
+// GET /payment-list?page=1&limit=10&status=succeeded
+const paymenlist = catchAsync(async (req: Request, res: Response) => {
+  const { page = 1, limit = 10, status } = req.query;
+
+  const pageInt = parseInt(page as string);
+  const limitInt = parseInt(limit as string);
+  const skip = (pageInt - 1) * limitInt;
+
+  const query: any = {};
+  if (status) {
+    query.status = status;
+  }
+
+  const payments = await Payment.find(query)
+    .populate('user', 'first_name last_name email')
+    .populate('packageId', 'name storage_size')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limitInt);
+
+  const total = await Payment.countDocuments(query);
+
+  res.status(200).json({
+    success: true,
+    data: payments,
+    currentPage: pageInt,
+    totalPages: Math.ceil(total / limitInt),
+    totalPayments: total,
+    
+  });
+});
+
+export const Controller = {checkout, handleWebhook, success,totalPayment,paymenlist};
