@@ -108,7 +108,6 @@ const addPlayer = async (teamId, data) => {
     // Send Invitation Email
     const subject = `You're Invited to Join ${updatedTeam?.team_name} on Game Changer!`;
     let mailContent;
-    console.log("Temp Password: ", temp_password);
     if (temp_password) {
         const emailTemplatePath = path_1.default.resolve(__dirname, "..", "email_templates", "player_add_email.ejs");
         const emailTemplate = fs_1.default.readFileSync(emailTemplatePath, "utf-8");
@@ -180,6 +179,7 @@ const addCoach = async (teamId, data) => {
             email: player.email,
             team: updatedTeam?.team_name,
             password: temp_password,
+            jersey_no: 0, // Coaches don't have jersey numbers
         });
     }
     else {
@@ -188,7 +188,8 @@ const addCoach = async (teamId, data) => {
         mailContent = ejs_1.default.render(emailTemplate, {
             name: `${player.first_name} ${player.last_name}`,
             email: player.email,
-            team: updatedTeam?.team_name
+            team: updatedTeam?.team_name,
+            jersey_no: 0, // Coaches don't have jersey numbers
         });
     }
     (0, emailService_1.sendEmail)(player.email, subject, mailContent);
