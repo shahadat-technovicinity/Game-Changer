@@ -103,7 +103,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
     // secure: process.env.NODE_ENV === 'production',
     sameSite: 'none' as const,
     secure: true,
-    maxAge: Number(process.env.COOKIES_EXPIRY_REMEMBER!) || 600000,
+    maxAge: Number(process.env.COOKIES_EXPIRY_REMEMBER) || 604800000,
   };
 
   res
