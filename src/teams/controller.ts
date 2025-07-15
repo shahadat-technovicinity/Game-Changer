@@ -134,12 +134,22 @@ const addPlayer = catchAsync(async (req: Request, res: Response) => {
     role: UserRole.PLAYER,
     jersey_no
   };
+
+  const user = await User.findOne({ email });
+  if (user?.role === 'Admin') {
+    throw new AppError('Admin cannot be added as a player', 400);
+  }
+  if (user?.role === 'Coach') {
+    throw new AppError('Coach cannot be added as a player', 400);
+  }
+
   const team = await Service.addPlayer(id,payload);
   res.status(200).json({ success: true,message: "Player added to the team successfully", data: team });
 
   // TODO: Send Email
   
 });
+
 const addCoach = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { first_name, last_name, email} = req.body;
@@ -152,8 +162,17 @@ const addCoach = catchAsync(async (req: Request, res: Response) => {
     email,
     role: UserRole.COACH
   };
+
+  const user = await User.findOne({ email });
+  if (user?.role === 'Admin') {
+    throw new AppError('Admin cannot be added as a coach', 400);
+  }
+  if (user?.role === 'Coach') {
+    throw new AppError('Coach cannot be added as a coach', 400);
+  }
+  
   const team = await Service.addCoach(id,payload);
-  res.status(200).json({ success: true,message: "Player added to the team successfully", data: team });
+  res.status(200).json({ success: true,message: "Coach added to the team successfully", data: team });
 
   // TODO: Send Email
   
