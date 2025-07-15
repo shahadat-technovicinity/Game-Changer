@@ -46,6 +46,26 @@ const getAll = async (query: any): Promise<{ items: ITeam[]; paginationData: any
   };
   return { items, paginationData };
 };
+const getOwnTeams = async (id:string,query: any): Promise<{ items: ITeam[]; paginationData: any }> => {
+  const { skip, limit, finalQuery, sortQuery, page } = queryHelper(query);
+  const filter = {admin_id: id, ...finalQuery};
+  const [items, totalItems] = await Promise.all([
+    Team.find(filter)
+      .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id'])
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(limit),
+    Team.countDocuments(filter),
+  ]);
+  const totalPages = Math.ceil(totalItems / limit);
+  const paginationData = {
+    totalItems,
+    totalPages,
+    currentPage: page,
+    limit,
+  };
+  return { items, paginationData };
+};
 
 const getById = async (id: string) => {
   return await Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id','coaches_id']);
@@ -283,5 +303,5 @@ const getCoachs = async (teamId: string,query: any): Promise<{ coaches: any[]; p
     }
   };
 };
-export const Service = { create,update,getAll, getById,addPlayer,addCoach,getCoachs,removePlayer,getPlayers ,remove}
+export const Service = { create,update,getAll, getById,addPlayer,addCoach,getCoachs,removePlayer,getPlayers ,remove,getOwnTeams}
 

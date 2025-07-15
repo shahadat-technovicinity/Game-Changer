@@ -7,6 +7,8 @@ const router = Router();
 router.route('/')
         .post(protect,restrictTo("Admin"),upload.single("image"),Controller.create)
         .get(Controller.getAll);
+router.route('/own-teams')
+        .get(protect,restrictTo("Admin", "Coach"),Controller.getOwnTeams);
 router.route('/:id')
         .post(protect,restrictTo("Admin"),upload.single("image"),Controller.update)
         .get(Controller.getById)

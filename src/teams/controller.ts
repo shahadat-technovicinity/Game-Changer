@@ -3,8 +3,8 @@ import {Service} from "./service";
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from "../utils/appError";
 import { UploadCloudinary } from "../utils/uploadCloudinary";
-import { ITeam } from './model';
-import { IUser, UserRole } from '../users/model';
+import { ITeam, Team } from './model';
+import { IUser, User, UserRole } from '../users/model';
 import { generateUniqueReferralCode } from '../utils/generateUniqueCode';
 
 const create = catchAsync(async (req: Request, res: Response) => {
@@ -83,6 +83,28 @@ const getAll = catchAsync(async (req: Request, res: Response) => {
   const {items,paginationData} = await Service.getAll(req.query);
   res.status(200).json({ success: true,message: "Retrived all teams successfully", data: items, pagination: paginationData });
 });
+
+const getOwnTeams = catchAsync(async (req: Request, res: Response) => {
+  const  id  = req.user?._id;
+  const user = await User.findById(id);
+  if(!user){
+    return res.status(404).json({ success: false, message: "User not found" });
+  }
+  if(user.role === UserRole.COACH){
+    const items = await Team.findById(user.team_id);
+    const paginationData = {
+    totalItems : 1,
+    totalPages : 1,
+    currentPage: 1,
+    limit: 1,
+  };
+    res.status(200).json({ success: true,message: "Retrived all teams successfully", data: items, pagination: paginationData });
+  }
+
+  const {items,paginationData} = await Service.getOwnTeams(id,req.query);
+  res.status(200).json({ success: true,message: "Retrived all teams successfully", data: items, pagination: paginationData });
+});
+
 const getPlayers = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { players, pagination } = await Service.getPlayers(id, req.query);
@@ -152,4 +174,4 @@ const remove = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: "Team deleted" });
 });
 
-export const Controller = { create,update, getById, getAll,addPlayer,addCoach,getCoachs,removePlayer,getPlayers,remove }
+export const Controller = { create,update, getById, getAll,addPlayer,addCoach,getCoachs,removePlayer,getPlayers,remove,getOwnTeams }

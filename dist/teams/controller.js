@@ -5,7 +5,8 @@ const service_1 = require("./service");
 const catchAsync_1 = require("../utils/catchAsync");
 const appError_1 = require("../utils/appError");
 const uploadCloudinary_1 = require("../utils/uploadCloudinary");
-const model_1 = require("../users/model");
+const model_1 = require("./model");
+const model_2 = require("../users/model");
 const generateUniqueCode_1 = require("../utils/generateUniqueCode");
 const create = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const admin_id = req.user._id;
@@ -76,6 +77,25 @@ const getAll = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { items, paginationData } = await service_1.Service.getAll(req.query);
     res.status(200).json({ success: true, message: "Retrived all teams successfully", data: items, pagination: paginationData });
 });
+const getOwnTeams = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const id = req.user?._id;
+    const user = await model_2.User.findById(id);
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (user.role === model_2.UserRole.COACH) {
+        const items = await model_1.Team.findById(user.team_id);
+        const paginationData = {
+            totalItems: 1,
+            totalPages: 1,
+            currentPage: 1,
+            limit: 1,
+        };
+        res.status(200).json({ success: true, message: "Retrived all teams successfully", data: items, pagination: paginationData });
+    }
+    const { items, paginationData } = await service_1.Service.getOwnTeams(id, req.query);
+    res.status(200).json({ success: true, message: "Retrived all teams successfully", data: items, pagination: paginationData });
+});
 const getPlayers = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { id } = req.params;
     const { players, pagination } = await service_1.Service.getPlayers(id, req.query);
@@ -100,7 +120,7 @@ const addPlayer = (0, catchAsync_1.catchAsync)(async (req, res) => {
         first_name,
         last_name,
         email,
-        role: model_1.UserRole.PLAYER,
+        role: model_2.UserRole.PLAYER,
         jersey_no
     };
     const team = await service_1.Service.addPlayer(id, payload);
@@ -117,7 +137,7 @@ const addCoach = (0, catchAsync_1.catchAsync)(async (req, res) => {
         first_name,
         last_name,
         email,
-        role: model_1.UserRole.COACH
+        role: model_2.UserRole.COACH
     };
     const team = await service_1.Service.addCoach(id, payload);
     res.status(200).json({ success: true, message: "Player added to the team successfully", data: team });
@@ -136,4 +156,4 @@ const remove = (0, catchAsync_1.catchAsync)(async (req, res) => {
     }
     res.status(200).json({ success: true, message: "Team deleted" });
 });
-exports.Controller = { create, update, getById, getAll, addPlayer, addCoach, getCoachs, removePlayer, getPlayers, remove };
+exports.Controller = { create, update, getById, getAll, addPlayer, addCoach, getCoachs, removePlayer, getPlayers, remove, getOwnTeams };
