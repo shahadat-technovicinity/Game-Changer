@@ -45,6 +45,26 @@ const getAll = async (query) => {
     };
     return { items, paginationData };
 };
+const getOwnTeams = async (id, query) => {
+    const { skip, limit, finalQuery, sortQuery, page } = (0, queryHelper_1.queryHelper)(query);
+    const filter = { admin_id: id, ...finalQuery };
+    const [items, totalItems] = await Promise.all([
+        model_1.Team.find(filter)
+            .populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id'])
+            .sort(sortQuery)
+            .skip(skip)
+            .limit(limit),
+        model_1.Team.countDocuments(filter),
+    ]);
+    const totalPages = Math.ceil(totalItems / limit);
+    const paginationData = {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        limit,
+    };
+    return { items, paginationData };
+};
 const getById = async (id) => {
     return await model_1.Team.findById(id).populate(['admin_id', 'game_type', 'team_type', 'age_type', 'season_type', 'players_id', 'coaches_id']);
 };
@@ -230,4 +250,4 @@ const getCoachs = async (teamId, query) => {
         }
     };
 };
-exports.Service = { create, update, getAll, getById, addPlayer, addCoach, getCoachs, removePlayer, getPlayers, remove };
+exports.Service = { create, update, getAll, getById, addPlayer, addCoach, getCoachs, removePlayer, getPlayers, remove, getOwnTeams };

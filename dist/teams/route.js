@@ -10,6 +10,8 @@ exports.teamRouter = router;
 router.route('/')
     .post(auth_1.protect, (0, auth_1.restrictTo)("Admin"), uploadFile_1.upload.single("image"), controller_1.Controller.create)
     .get(controller_1.Controller.getAll);
+router.route('/own-teams')
+    .get(auth_1.protect, (0, auth_1.restrictTo)("Admin", "Coach"), controller_1.Controller.getOwnTeams);
 router.route('/:id')
     .post(auth_1.protect, (0, auth_1.restrictTo)("Admin"), uploadFile_1.upload.single("image"), controller_1.Controller.update)
     .get(controller_1.Controller.getById)
