@@ -13,3 +13,5 @@ exports.paymentRouter = router;
 router.post('/checkout', auth_1.protect, controller_1.Controller.checkout); // Client payment creation
 router.post('/webhook', express_1.default.raw({ type: 'application/json' }), controller_1.Controller.handleWebhook); // Stripe webhook
 router.get('/success', controller_1.Controller.success); // Success page
+router.get('/total-earnings', controller_1.Controller.totalPayment);
+router.get('/payment-lists', controller_1.Controller.paymenlist);
