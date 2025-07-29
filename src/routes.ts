@@ -13,6 +13,7 @@ import {liveStreamingRouter} from "./live_streaming/route"; // ES6 import style
 import {storagePackageRouter} from "./storage_packages/route"; // ES6 import style
 import { paymentRouter } from "./payments/route";
 import { videoRouter } from "./video_upload/route";
+import { messageRouter } from "./messages/route";
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use("/live-streaming", liveStreamingRouter);
 router.use("/storage-packages", storagePackageRouter);
 router.use("/payments", paymentRouter);
 router.use("/videos", videoRouter);
+router.use("/messages", messageRouter);
 
 // Default route
 router.get("/", (req, res) => {
