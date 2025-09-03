@@ -4,6 +4,7 @@ dotenv.config();
 
 
 // Load environment variables with proper type safety
+
 const {
   JWT_SECRET,
   JWT_EXPIRES_IN = "1h",
